@@ -126,10 +126,13 @@ DATABASE_URL="postgresql://username:password@localhost:5433/tranai_db"
 npx prisma migrate dev
 
 4️⃣ Execute Data Import Script
-node importAll.js
-
+npm run import
 
 This will populate all tables with synthetic SAP data.
+
+🧪 Optional: Python-based Universal Loader
+
+For experimentation and demos, this repo also includes a Python script `universal_data_loader.py` that can load data into the same PostgreSQL database based on `config_loader.json`. This path is optional and is not required for the main Node.js + Prisma pipeline.
 
 📈 Current Capabilities
 

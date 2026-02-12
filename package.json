@@ -2,8 +2,11 @@
   "name": "tranai-data-api",
   "version": "1.0.0",
   "description": "for the data layar api \r Data Access Layer setup started",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "import": "node importAll.js",
+    "seed": "node seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
