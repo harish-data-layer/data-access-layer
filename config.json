@@ -1,0 +1,38 @@
+{
+    "source_db": {
+      "type": "postgres",
+      "host": "localhost",
+      "port": 5433,
+      "database": "sap_db",
+      "user": "postgres",
+      "password": "yourpassword"
+    },
+  
+    "target_db": {
+      "type": "postgres",
+      "host": "localhost",
+      "port": 5433,
+      "database": "tranai_db",
+      "user": "postgres",
+      "password": "yourpassword"
+    },
+  
+    "tables": [
+      {
+        "source_table": "vendors",
+        "target_table": "Vendor",
+        "columns": ["name", "gst", "email"]
+      },
+      {
+        "source_table": "purchase_orders",
+        "target_table": "PurchaseOrder",
+        "columns": ["poNumber", "amount", "status", "vendorId"]
+      },
+      {
+        "source_table": "invoices",
+        "target_table": "Invoice",
+        "columns": ["invoiceNo", "amount", "status", "vendorId"]
+      }
+    ]
+  }
+  
