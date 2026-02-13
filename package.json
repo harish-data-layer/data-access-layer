@@ -1,0 +1,24 @@
+{
+  "name": "tranai-data-api",
+  "version": "1.0.0",
+  "description": "for the data layar api \r Data Access Layer setup started",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "import": "node importAll.js",
+    "seed": "node seed.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}

@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id             Int     @id @default(autoincrement())
+  vendorCode     String? 
+  name           String
+  gst            String
+  email          String
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  postalCode     String?
+  bankName       String?
+  bankAccount    String?
+  ifscCode       String?
+  paymentTerms   String?
+  currency       String?
+  status         String?
+  createdDate    DateTime?
+  updatedDate    DateTime?
+  contactPerson  String?
+  contactPhone   String?
+  notes          String?
+
+  invoices       Invoice[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id            Int      @id @default(autoincrement())
+  poNumber      String
+  vendorId      Int
+  vendor        Vendor   @relation(fields: [vendorId], references: [id])
+
+  amount        Float
+  currency      String?
+  status        String?
+  poDate        DateTime?
+  deliveryDate  DateTime?
+  paymentTerms  String?
+  createdBy     String?
+  approvedBy    String?
+  department    String?
+  costCenter    String?
+  taxAmount     Float?
+  totalAmount   Float?
+  notes         String?
+}
+
+model Invoice {
+  id             Int      @id @default(autoincrement())
+  invoiceNo      String
+  vendorId       Int
+  vendor         Vendor   @relation(fields: [vendorId], references: [id])
+
+  poNumber       String?
+  amount         Float
+  taxAmount      Float?
+  totalAmount    Float?
+  currency       String?
+  status         String?
+  invoiceDate    DateTime?
+  dueDate        DateTime?
+  paymentDate    DateTime?
+  paymentMethod  String?
+  createdBy      String?
+  approvedBy     String?
+  notes          String?
+}

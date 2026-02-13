@@ -1,0 +1,71 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------
+// SAP VENDOR (LFA1)
+// ----------------------------------------
+model Vendor {
+  lifnr         String   @id @map("LIFNR") // Vendor Account Number
+  name1         String?  @map("NAME1") // Name 1
+  name2         String?  @map("NAME2") // Name 2
+  city          String?  @map("ORT01") // City
+  postalCode    String?  @map("PSTLZ") // Postal Code
+  street        String?  @map("STRAS") // Street
+  country       String?  @map("LAND1") // Country Key
+  taxNumber1    String?  @map("STCD1") // Tax Number 1
+  taxNumber2    String?  @map("STCD2") // Tax Number 2
+  createdOn     DateTime @default(now()) @map("ERDAT") // Date on which the record was created
+  isBlocked     String?  @default("") @map("SPERR") // Central posting block
+  isDeleted     String?  @default("") @map("LOEVM") // Central Deletion Flag
+  
+  // Metadata
+  syncTimestamp DateTime @default(now()) @map("sync_timestamp")
+  sourceSystem  String   @default("SAP_PRD") @map("source_system")
+
+  @@map("sap_lfa1")
+}
+
+// ----------------------------------------
+// SAP INVOICE (RBKP - Header)
+// ----------------------------------------
+model InvoiceHeader {
+  invoiceDoc    String   @id @map("BELNR") // Document Number of an Invoice Document
+  fiscalYear    String   @map("GJAHR") // Fiscal Year
+  docDate       DateTime @map("BLDAT") // Document Date in Document
+  postingDate   DateTime @map("BUDAT") // Posting Date in the Document
+  vendor        String   @map("LIFNR") // Different Vendor
+  grossAmount   Decimal  @map("RMWWR") // Gross Invoice Amount in Document Currency
+  currency      String   @map("WAERS") // Currency Key
+  status        String   @default("PARKED") @map("RBSTAT") // Invoice document status
+  
+  // Metadata
+  syncTimestamp DateTime @default(now()) @map("sync_timestamp")
+
+  @@map("sap_rbkp")
+}
+
+// ----------------------------------------
+// INTEGRATION METRICS (New Table for Real Dashboard)
+// ----------------------------------------
+model IntegrationLog {
+  id            String   @id @default(uuid())
+  entity        String   // e.g. "Vendor", "Invoice"
+  action        String   // e.g. "SYNC", "POST"
+  status        String   // "SUCCESS", "FAILED"
+  recordCount   Int      @default(0)
+  errorMessage  String?
+  durationMs    Int      @default(0)
+  timestamp     DateTime @default(now())
+
+  @@map("integration_logs")
+}
