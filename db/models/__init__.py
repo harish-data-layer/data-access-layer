@@ -9,3 +9,4 @@ from .event import Event
 from .audit_log import DataAccessLog, DataChangeLog, AiActionLog
 from .push_queue import PushQueue
 from .vector import VendorEmbedding
+from .sap_tables import RBKP, RSEG, BKPF, BSEG, LFA1, LFB1, EKKO, EKPO, MKPF, MSEG

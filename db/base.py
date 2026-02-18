@@ -19,7 +19,8 @@ SCHEMAS = [
     "vector_layer",
     "event_store",
     "audit_layer",
-    "push_layer"
+    "push_layer",
+    "sap_layer"
 ]
 
 class Base(DeclarativeBase):
