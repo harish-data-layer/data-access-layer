@@ -20,7 +20,8 @@ SCHEMAS = [
     "event_store",
     "audit_layer",
     "push_layer",
-    "sap_layer"
+    "sap",
+    "ai"
 ]
 
 class Base(DeclarativeBase):

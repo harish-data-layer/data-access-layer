@@ -9,8 +9,9 @@ from dotenv import load_dotenv
 # Add the project root to python path to allow imports from db
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from db.base import Base, SCHEMAS  # Import Base and SCHEMAS
-import db.models  # Import models to register them with Base.metadata
+from db.base import Base, SCHEMAS
+from db.models import test
+import db.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
