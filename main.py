@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.base import SessionLocal
 from db.models import LFA1, RBKP, AiVendor, AiInvoice
+from db.services.ai_sync_service import SyncService
 from datetime import datetime
 from typing import List
 
@@ -22,52 +23,13 @@ def read_root():
 @app.get("/sync/sap-to-ai")
 def sync_data(limit: int = 100, db: Session = Depends(get_db)):
     """
-    API endpoint to PULL data from SAP and PUSH to AI schema.
-    This integrates the logic previously demoed in the sync service.
+    API endpoint to PULL data from SAP and PUSH to AI schema via SyncService.
     """
-    stats = {"vendors_synced": 0, "invoices_synced": 0}
-    
-    # 1. Sync Vendors
-    sap_vendors = db.query(LFA1).limit(limit).all()
-    for v in sap_vendors:
-        ai_v = db.query(AiVendor).filter(AiVendor.LIFNR == v.LIFNR).first()
-        if not ai_v:
-            ai_v = AiVendor(
-                LIFNR=v.LIFNR,
-                NAME1=v.NAME1,
-                AI_Score=80, # Placeholder logic
-                AI_Classification="Synced via API",
-                last_synced_at=datetime.utcnow()
-            )
-            db.add(ai_v)
-            stats["vendors_synced"] += 1
-        else:
-            ai_v.NAME1 = v.NAME1
-            ai_v.last_synced_at = datetime.utcnow()
-
-    # 2. Sync Invoices
-    sap_invoices = db.query(RBKP).limit(limit).all()
-    for inv in sap_invoices:
-        ai_inv = db.query(AiInvoice).filter(
-            AiInvoice.BELNR == inv.BELNR, 
-            AiInvoice.GJAHR == inv.GJAHR
-        ).first()
-        
-        if not ai_inv:
-            is_anomalous = 1 if (inv.RMWWR or 0) > 150000 else 0
-            ai_inv = AiInvoice(
-                BELNR=inv.BELNR,
-                GJAHR=inv.GJAHR,
-                LIFNR=inv.LIFNR,
-                TotalAmount=int(inv.RMWWR or 0),
-                Anomalous=is_anomalous,
-                last_synced_at=datetime.utcnow()
-            )
-            db.add(ai_inv)
-            stats["invoices_synced"] += 1
-
-    db.commit()
-    return {"status": "success", "synced_records": stats}
+    try:
+        stats = SyncService.sync_sap_to_ai(db, limit)
+        return {"status": "success", "synced_records": stats}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/sap/vendors")
 def get_sap_vendors(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
