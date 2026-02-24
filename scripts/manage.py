@@ -1,91 +1,93 @@
 import sys
 import os
 import random
-from datetime import date, datetime, timedelta, timezone
-from sqlalchemy.orm import Session
+from sqlalchemy import text
+from datetime import date, datetime
 
-# Add project root to sys.path
+# --- PEP 8 STANDARDS: PATH SETUP ---
+# Ensures Python can find the 'db' and 'services' folders
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from db.base import SessionLocal
-from db.models.sap_tables import RBKP, RSEG, BKPF, BSEG, LFA1, LFB1, EKKO, EKPO, MKPF, MSEG
-from db.models.test import (
-    AiVendor, AiInvoice, SyncState, PromotedVendor, 
-    PromotedInvoice, PromotedInventory, PromotedPurchaseOrder
-)
-from db.models.audit_log import DataAccessLog, DataChangeLog
+from db.base import SessionLocal, engine, Base
+from db.models.sap_tables import LFA1, RBKP, EKKO, EKPO
+from db.models.test import AiVendor, AiInvoice
 from db.services.ai_sync_service import SyncService
 
-class DatabaseManager:
+class MasterController:
+    """
+    The Single Source of Truth for database management.
+    One class to handle everything from setup to seeding.
+    """
+
     def __init__(self):
         self.db = SessionLocal()
 
-    def clear_data(self):
-        """Wipes all data for a clean slate."""
-        print("Clearing all datasets...")
-        tables = [
-            SyncState, PromotedInventory, PromotedInvoice, PromotedPurchaseOrder, PromotedVendor,
-            AiInvoice, AiVendor, MSEG, MKPF, BSEG, BKPF, RSEG, RBKP, EKPO, EKKO, LFB1, LFA1,
-            DataAccessLog, DataChangeLog
-        ]
-        for table in tables:
-            try:
-                self.db.query(table).delete()
-            except:
-                self.db.rollback()
-        self.db.commit()
+    def setup(self, count=100):
+        """
+        THE MASTER COMMAND: Setup database, tables, seed data, and sync AI scores.
+        Usage: python manage.py setup
+        """
+        print("\n--- [STEP 1] Initializing Cloud Database ---")
+        try:
+            # Connect and ensure schemas exist
+            with engine.connect() as conn:
+                conn.execute(text("CREATE SCHEMA IF NOT EXISTS sap;"))
+                conn.execute(text("CREATE SCHEMA IF NOT EXISTS ai;"))
+                conn.commit()
+            
+            # Create all tables defined in our models if they don't exist
+            print("[STEP 2] Creating Tables...")
+            Base.metadata.create_all(bind=engine)
+            
+            # Step 3 (Wipe) removed as per user request to preserve data
 
-    def seed_data(self, count=100):
-        """Generates realistic data."""
-        self.clear_data()
-        print(f"Seeding {count} records...")
-        
-        vendor_names = ["Reliance", "Tata", "Infosys", "Wipro", "HCL", "Adani", "Mahindra"]
-        
-        for i in range(count):
-            lifnr = f"V{1000+i}"
-            name = f"{random.choice(vendor_names)} {i}"
+            print(f"[STEP 3] Adding {count} Fresh Records (if not already present)...")
+            vendor_names = ["Reliance", "Tata", "Infosys", "Wipro", "HCL", "Mahindra", "Adani"]
             
-            self.db.add(LFA1(LIFNR=lifnr, NAME1=name, COUNTRY="IN", ERDAT=date.today()))
-            self.db.add(AiVendor(LIFNR=lifnr, NAME1=name, AI_Score=random.randint(60, 95)))
+            # Start ID based on current time to avoid collisions with previous runs
+            ts_id = int(datetime.now().timestamp()) % 10000 
             
-            ebeln = f"45{10000+i}"
-            self.db.add(EKKO(EBELN=ebeln, LIFNR=lifnr, BEDAT=date.today(), BUKRS="1000", WAERS="INR"))
-            self.db.add(EKPO(EBELN=ebeln, EBELP="10", MATNR="MAT-01", MENGE=10.0, NETWR=5000.0, BUKRS="1000", WERKS="1100"))
+            for i in range(count):
+                lifnr = f"V{ts_id + i}"
+                name = f"{random.choice(vendor_names)} {ts_id + i}"
+                
+                # Check if vendor exists
+                exists = self.db.query(LFA1).filter(LFA1.LIFNR == lifnr).first()
+                if not exists:
+                    # Add Local Vendor Record (SAP Layer)
+                    self.db.add(LFA1(LIFNR=lifnr, NAME1=name, COUNTRY="IN", ERDAT=date.today()))
+                    
+                    # Add Local Invoice Record (SAP Layer)
+                    belnr = f"51{ts_id + i}"
+                    self.db.add(RBKP(BELNR=belnr, GJAHR="2025", LIFNR=lifnr, RMWWR=5000.0, BUKRS="1000"))
+                
+                if i % 50 == 0:
+                    self.db.commit()
             
-            belnr = f"51{10000+i}"
-            self.db.add(RBKP(BELNR=belnr, GJAHR="2025", LIFNR=lifnr, RMWWR=5900.0, BUKRS="1000", WAERS="INR"))
-            
-            if i % 100 == 0:
-                self.db.commit()
-        
-        self.db.commit()
-        print(f"Success: Seeded {count} records.")
+            self.db.commit()
+            print(f"--- Success: New records added to SAP schema ---")
 
-    def run_sync(self):
-        """Runs Sync."""
-        print("Syncing...")
-        stats = SyncService.sync_sap_to_ai(self.db)
-        print(f"Result: {stats}")
+            # Final Step: Sync to AI layer
+            print("[STEP 4] Running AI Scoring Logic for all records...")
+            results = SyncService.sync_sap_to_ai(self.db)
+            print(f"--- Success: AI Layer updated (Stats: {results}) ---")
+            
+            print("\n[FINISH] Your production environment is READY.")
+
+        except Exception as e:
+            print(f"Error during setup: {e}")
+            self.db.rollback()
 
     def close(self):
         self.db.close()
 
 if __name__ == "__main__":
-    manager = DatabaseManager()
+    controller = MasterController()
     try:
-        if len(sys.argv) > 1:
-            cmd = sys.argv[1].lower()
-            if cmd == "seed":
-                count = int(sys.argv[2]) if len(sys.argv) > 2 else 100
-                manager.seed_data(count)
-            elif cmd == "sync":
-                manager.run_sync()
-            elif cmd == "clear":
-                manager.clear_data()
-            else:
-                print("Usage: python manage.py [seed|sync|clear]")
+        if len(sys.argv) > 1 and sys.argv[1] == "setup":
+            # The only command the user needs
+            controller.setup()
         else:
-            print("Usage: python manage.py [seed|sync|clear]")
+            print("Usage: python manage.py setup")
     finally:
-        manager.close()
+        controller.close()
