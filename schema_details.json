@@ -1,0 +1,220 @@
+{
+  "_sync_state": {
+    "entity_name": {
+      "type": "VARCHAR(100)",
+      "nullable": false
+    },
+    "last_sync_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    },
+    "last_watermark": {
+      "type": "TEXT",
+      "nullable": true
+    },
+    "records_synced": {
+      "type": "BIGINT",
+      "nullable": true
+    },
+    "last_status": {
+      "type": "VARCHAR(20)",
+      "nullable": true
+    },
+    "last_error": {
+      "type": "TEXT",
+      "nullable": true
+    },
+    "total_syncs": {
+      "type": "BIGINT",
+      "nullable": true
+    }
+  },
+  "promoted_vendors": {
+    "vendor_id": {
+      "type": "INTEGER",
+      "nullable": false
+    },
+    "sap_code": {
+      "type": "VARCHAR(30)",
+      "nullable": true
+    },
+    "name": {
+      "type": "VARCHAR(200)",
+      "nullable": true
+    },
+    "tax_id": {
+      "type": "VARCHAR(50)",
+      "nullable": true
+    },
+    "city": {
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    "street": {
+      "type": "VARCHAR(200)",
+      "nullable": true
+    },
+    "country_code": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "email": {
+      "type": "VARCHAR(150)",
+      "nullable": true
+    },
+    "phone": {
+      "type": "VARCHAR(50)",
+      "nullable": true
+    },
+    "business_sector": {
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    "created_on": {
+      "type": "DATE",
+      "nullable": true
+    },
+    "created_by": {
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    "_created_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    },
+    "_updated_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    }
+  },
+  "promoted_invoices": {
+    "invoice_number": {
+      "type": "VARCHAR(30)",
+      "nullable": false
+    },
+    "fiscal_year": {
+      "type": "INTEGER",
+      "nullable": false
+    },
+    "vendor_code": {
+      "type": "VARCHAR(30)",
+      "nullable": true
+    },
+    "total_amount": {
+      "type": "NUMERIC(15, 2)",
+      "nullable": true
+    },
+    "currency": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "invoice_date": {
+      "type": "DATE",
+      "nullable": true
+    },
+    "posting_date": {
+      "type": "DATE",
+      "nullable": true
+    },
+    "_created_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    },
+    "_updated_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    }
+  },
+  "promoted_inventory": {
+    "doc_number": {
+      "type": "VARCHAR(30)",
+      "nullable": false
+    },
+    "doc_year": {
+      "type": "INTEGER",
+      "nullable": false
+    },
+    "item_number": {
+      "type": "INTEGER",
+      "nullable": false
+    },
+    "movement_type": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "material_number": {
+      "type": "VARCHAR(40)",
+      "nullable": true
+    },
+    "plant": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "storage_location": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "quantity": {
+      "type": "NUMERIC(15, 3)",
+      "nullable": true
+    },
+    "unit": {
+      "type": "VARCHAR(10)",
+      "nullable": true
+    },
+    "_created_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    },
+    "_updated_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    }
+  },
+  "promoted_purchase_orders": {
+    "po_number": {
+      "type": "VARCHAR(30)",
+      "nullable": false
+    },
+    "item_number": {
+      "type": "INTEGER",
+      "nullable": false
+    },
+    "vendor_code": {
+      "type": "VARCHAR(30)",
+      "nullable": true
+    },
+    "material_number": {
+      "type": "VARCHAR(40)",
+      "nullable": true
+    },
+    "description": {
+      "type": "VARCHAR(200)",
+      "nullable": true
+    },
+    "quantity": {
+      "type": "NUMERIC(15, 3)",
+      "nullable": true
+    },
+    "net_price": {
+      "type": "NUMERIC(15, 2)",
+      "nullable": true
+    },
+    "po_date": {
+      "type": "DATE",
+      "nullable": true
+    },
+    "created_by": {
+      "type": "VARCHAR(100)",
+      "nullable": true
+    },
+    "_created_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    },
+    "_updated_at": {
+      "type": "TIMESTAMP",
+      "nullable": true
+    }
+  }
+}
