@@ -57,6 +57,14 @@ class MasterController:
                     # Add Local Vendor Record (SAP Layer)
                     self.db.add(LFA1(LIFNR=lifnr, NAME1=name, COUNTRY="IN", ERDAT=date.today()))
                     
+                    # Add Local Purchase Order (SAP Header)
+                    ebeln = f"45{ts_id + i}"
+                    self.db.add(EKKO(EBELN=ebeln, LIFNR=lifnr, BEDAT=date.today(), BUKRS="1000"))
+                    
+                    # Add Local PO Items (SAP Line Items)
+                    self.db.add(EKPO(EBELN=ebeln, EBELP="10", MATNR="MAT-PROD-01", MENGE=10.0, NETPR=150.0))
+                    self.db.add(EKPO(EBELN=ebeln, EBELP="20", MATNR="MAT-PROD-02", MENGE=5.0, NETPR=300.0))
+
                     # Add Local Invoice Record (SAP Layer)
                     belnr = f"51{ts_id + i}"
                     self.db.add(RBKP(BELNR=belnr, GJAHR="2025", LIFNR=lifnr, RMWWR=5000.0, BUKRS="1000"))

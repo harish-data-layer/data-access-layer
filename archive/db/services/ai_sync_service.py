@@ -1,18 +1,51 @@
-# Import Session for type hinting database connections
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 # Import SessionLocal to create new database sessions if needed
 from db.base import SessionLocal
 # Import SAP and AI models to interact with the database tables
-from db.models import LFA1, RBKP, AiVendor, AiInvoice
+from db.models import LFA1, RBKP, AiVendor, AiInvoice, EKKO, EKPO
 # Import datetime to timestamp synchronization events
 from datetime import datetime
 
-# Define the SyncService class to handle data movement between schemas
+# Define the SyncService class to handle data movement and mapping
 class SyncService:
     """
-    Service class responsible for the 'Pull and Push' logic between 
-    the SAP (source) schema and the AI (target) schema.
+    Service class responsible for 'Pull and Push' logic and 
+    specialized Data Mapping for the API.
     """
+
+    @staticmethod
+    def get_bulk_purchase_json(db: Session, limit: int = 10):
+        """
+        Fetches Purchase Orders with Line Items and maps them to the 
+        specific SAP SERVER -> API -> JSON format requested.
+        """
+        # Fetch Purchase Headers with their Line Items joined efficiently
+        purchases = db.query(EKKO).options(joinedload(EKKO.line_items)).limit(limit).all()
+        
+        results = []
+        for p in purchases:
+            # Construct the specific JSON structure from the image
+            item = {
+                "P_id": p.EBELN,
+                "line_items": [
+                    {
+                        "prod": line.MATNR, 
+                        "qty": line.MENGE, 
+                        "price": line.NETPR
+                    } for line in p.line_items
+                ],
+                "MapJSn": {
+                    "purchase": {
+                        "SAP_PURCHASE_ORDER_ID": p.EBELN
+                    },
+                    "vendor": {
+                        "purchase_id": p.LIFNR  # Mapping Vendor to Purchase ID context
+                    }
+                }
+            }
+            results.append(item)
+            
+        return results
 
     @staticmethod
     def sync_sap_to_ai(db: Session, limit: int = 100):

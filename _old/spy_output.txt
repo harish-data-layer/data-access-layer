@@ -1,0 +1,14 @@
+Transaction: SE16N
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/lblTEXT55, Type: GuiLabel, Text: Search in Table
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/txtGD-TAB, Type: GuiTextField, Text: MARA
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/txtGD_TABL_TEXT, Type: GuiTextField, Text: General Material Data
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/lblTEXT2, Type: GuiLabel, Text: Number of Hits
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/txtGD-NUMBER, Type: GuiTextField, Text: 10
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/lblTEXT3, Type: GuiLabel, Text: Runtime
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/txtGD-RUNTIME, Type: GuiTextField, Text: 0
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/lblTEXTMAX, Type: GuiLabel, Text: Maximum No. of Hits
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/txtGD-MAX_LINES, Type: GuiTextField, Text: 10
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/lblTXT_ADD_COLUMN, Type: GuiLabel, Text: Insert Column
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/ctxtGD_ADD_COLUMN, Type: GuiCTextField, Text: 
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/btnBUTTON_LAYOUT_IMPORT, Type: GuiButton, Text: 
+-> ID: /app/con[0]/ses[0]/wnd[0]/usr/btnBUTTON_LAYOUT_EXPORT, Type: GuiButton, Text: 

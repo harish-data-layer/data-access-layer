@@ -69,6 +69,18 @@ def get_ai_vendors(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     # Map enriched models to dictionary format
     return [{"LIFNR": v.LIFNR, "NAME1": v.NAME1, "AI_Score": v.AI_Score} for v in vendors]
 
+@app.get("/sap/bulk-purchase", tags=["SAP Data"])
+def get_bulk_purchase(limit: int = 10, db: Session = Depends(get_db)):
+    """
+    Returns Purchase Orders and Line Items in the specific 
+    SAP SERVER -> API -> JSON format requested.
+    """
+    try:
+        data = SyncService.get_bulk_purchase_json(db, limit)
+        return {"status": "success", "data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # --- APP STARTUP ---
 if __name__ == "__main__":
     # Import uvicorn server only when running as a script
