@@ -73,8 +73,13 @@ class SAPODataClient:
           - 443/44340 (HTTPS)
           - 3240/3340 (Dispatcher/RFC - less common for OData)
         """
-        protocols = ["http", "https"]
+        protocols = ["https", "http"]
         hosts     = [self.base_host, self.base_ip]
+
+        # Ignore SSL certificate warnings for self-signed SAP certificates
+        self.session.verify = False
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         for host in hosts:
             for proto in protocols:
@@ -83,16 +88,19 @@ class SAPODataClient:
                     log.info(f"Testing: {url}")
                     try:
                         resp = self.session.get(url, timeout=5)
+                        log.info(f"  Result: HTTP {resp.status_code}")
                         if resp.status_code < 500:
-                            log.info(f"CONNECTED! {proto}://{host}:{port} (HTTP {resp.status_code})")
+                            log.info(f"CONNECTED! {proto}://{host}:{port}")
                             self.active_url = f"{proto}://{host}:{port}"
                             return self.active_url
+                        else:
+                            log.warning(f"  Port {port} responded with error {resp.status_code}. Path might not be registered.")
                     except requests.exceptions.ConnectTimeout:
-                        log.debug(f"  Timeout: {port}")
-                    except requests.exceptions.ConnectionError:
-                        log.debug(f"  Refused: {port}")
+                        log.info(f"  Timeout on port {port}")
+                    except requests.exceptions.ConnectionError as e:
+                        log.info(f"  Connection Refused on port {port}: {e}")
                     except Exception as e:
-                        log.debug(f"  Error: {e}")
+                        log.error(f"  Unexpected error on port {port}: {e}")
 
         raise ConnectionError(
             f"Could not connect to SAP OData at {self.base_host} on any port.\n"
