@@ -1,0 +1,231 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["semantic_layer", "curated_layer", "integration_layer", "dq_layer", "vector_layer", "event_store", "audit_layer", "push_layer"]
+}
+
+model Entity {
+  id                   String      @id @default(uuid())
+  entityId             String      @unique
+  entityName           String
+  businessDefinition   String
+  businessOwner        String
+  dataSteward          String
+  sourceSystem         String
+  domain               String
+  dataClassification   String
+  complianceTags       String[]
+  retentionPolicy      String
+  versionId            String
+  effectiveFrom        DateTime
+  effectiveTo          DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  attributes           Attribute[]
+
+  @@map("entities")
+  @@schema("semantic_layer")
+}
+
+model Attribute {
+  id                 String   @id @default(uuid())
+  attributeId        String   @unique
+  entityId           String
+  attributeName      String
+  dataType           String
+  businessDefinition String
+  isSensitive        Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  entity             Entity   @relation(fields: [entityId], references: [entityId])
+
+  @@map("attributes")
+  @@schema("semantic_layer")
+}
+
+model BusinessRule {
+  id            String   @id @default(uuid())
+  ruleId        String   @unique
+  ruleName      String
+  entityName    String
+  ruleType      String
+  sqlExpression String?
+  jsonSchema    Json?
+  aiExplanation String?
+  severity      String
+  isActive      Boolean  @default(true)
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("business_rules")
+  @@schema("semantic_layer")
+}
+
+model CuratedVendor {
+  id         String    @id @default(uuid())
+  vendorId   String
+  vendorCode String
+  vendorName String
+  gst        String?
+  validFrom  DateTime
+  validTo    DateTime?
+  isCurrent  Boolean   @default(true)
+  dqScore    Float?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("curated_vendors")
+  @@schema("curated_layer")
+}
+
+model CuratedInvoice {
+  id            String    @id @default(uuid())
+  invoiceId     String
+  invoiceNumber String
+  vendorId      String
+  invoiceDate   DateTime
+  totalAmount   Float
+  currency      String    @default("INR")
+  status        String
+  validFrom     DateTime
+  validTo       DateTime?
+  isCurrent     Boolean   @default(true)
+  dqScore       Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("curated_invoices")
+  @@schema("curated_layer")
+}
+
+model ExtractionMetadata {
+  id               String    @id @default(uuid())
+  extractionId     String    @unique
+  source           String
+  entity           String
+  extractionType   String
+  status           String
+  recordsExtracted Int       @default(0)
+  recordsFailed    Int       @default(0)
+  startedAt        DateTime
+  completedAt      DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@map("extraction_metadata")
+  @@schema("integration_layer")
+}
+
+model DqScore {
+  id             String   @id @default(uuid())
+  entityName     String
+  recordId       String?
+  completeness   Float?
+  accuracy       Float?
+  consistency    Float?
+  validity       Float?
+  timeliness     Float?
+  uniqueness     Float?
+  compositeScore Float
+  measuredAt     DateTime @default(now())
+
+  @@map("dq_scores")
+  @@schema("dq_layer")
+}
+
+model Event {
+  id            String   @id @default(uuid())
+  eventId       String   @unique
+  eventType     String
+  aggregateId   String
+  aggregateType String
+  payload       Json
+  metadata      Json?
+  correlationId String?
+  timestamp     DateTime @default(now())
+  version       Int      @default(1)
+
+  @@map("events")
+  @@schema("event_store")
+}
+
+model DataAccessLog {
+  id             String   @id @default(uuid())
+  entityName     String
+  recordId       String?
+  operation      String
+  accessedBy     String
+  accessedByType String
+  accessedAt     DateTime @default(now())
+
+  @@map("data_access_logs")
+  @@schema("audit_layer")
+}
+
+model DataChangeLog {
+  id            String   @id @default(uuid())
+  entityName    String
+  recordId      String
+  operation     String
+  oldValue      Json?
+  newValue      Json?
+  changedBy     String
+  changedByType String
+  changedAt     DateTime @default(now())
+
+  @@map("data_change_logs")
+  @@schema("audit_layer")
+}
+
+model AiActionLog {
+  id              String    @id @default(uuid())
+  actionId        String    @unique
+  agentName       String
+  actionType      String
+  entityName      String
+  recordId        String?
+  inputData       Json?
+  outputData      Json?
+  confidenceScore Float?
+  reasoning       String?
+  executedAt      DateTime  @default(now())
+
+  @@map("ai_action_logs")
+  @@schema("audit_layer")
+}
+
+model PushQueue {
+  id           String    @id @default(uuid())
+  queueId      String    @unique
+  targetSystem String
+  entity       String
+  operation    String
+  payload      Json
+  status       String
+  priority     Int       @default(5)
+  retryCount   Int       @default(0)
+  maxRetries   Int       @default(3)
+  createdAt    DateTime  @default(now())
+  processedAt  DateTime?
+  completedAt  DateTime?
+
+  @@map("push_queue")
+  @@schema("push_layer")
+}
+
+model VendorEmbedding {
+  id        String   @id @default(uuid())
+  vendorId  String   @unique
+  embedding String
+  model     String   @default("text-embedding-ada-002")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("vendor_embeddings")
+  @@schema("vector_layer")
+}

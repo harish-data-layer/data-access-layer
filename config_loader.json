@@ -1,0 +1,35 @@
+{
+  "target_db": {
+    "host": "localhost",
+    "port": 5433,
+    "database": "tranai_db",
+    "user": "postgres",
+    "password": "yourpassword"
+  },
+
+  "excel": {
+    "file": "huge_synthetic_sap_data_v3.xlsx",
+    "tables": [
+      {
+        "sheet": "Vendors",
+        "target_table": "Vendor",
+        "columns": ["vendor_name", "gst_number", "email"]
+      },
+      {
+        "sheet": "Invoices",
+        "target_table": "Invoice",
+        "columns": ["invoice_no", "amount", "status"]
+      }
+    ]
+  },
+
+  "sap_api": {
+    "tables": [
+      {
+        "endpoint": "http://sap-server/api/vendors",
+        "target_table": "Vendor",
+        "columns": ["name", "gst", "email"]
+      }
+    ]
+  }
+}

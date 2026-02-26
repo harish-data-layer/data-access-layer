@@ -1,0 +1,47 @@
+-- AlterTable
+ALTER TABLE "Invoice" ADD COLUMN     "approvedBy" TEXT,
+ADD COLUMN     "createdBy" TEXT,
+ADD COLUMN     "currency" TEXT,
+ADD COLUMN     "dueDate" TIMESTAMP(3),
+ADD COLUMN     "invoiceDate" TIMESTAMP(3),
+ADD COLUMN     "notes" TEXT,
+ADD COLUMN     "paymentDate" TIMESTAMP(3),
+ADD COLUMN     "paymentMethod" TEXT,
+ADD COLUMN     "poNumber" TEXT,
+ADD COLUMN     "taxAmount" DOUBLE PRECISION,
+ADD COLUMN     "totalAmount" DOUBLE PRECISION,
+ALTER COLUMN "status" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "PurchaseOrder" ADD COLUMN     "approvedBy" TEXT,
+ADD COLUMN     "costCenter" TEXT,
+ADD COLUMN     "createdBy" TEXT,
+ADD COLUMN     "currency" TEXT,
+ADD COLUMN     "deliveryDate" TIMESTAMP(3),
+ADD COLUMN     "department" TEXT,
+ADD COLUMN     "notes" TEXT,
+ADD COLUMN     "paymentTerms" TEXT,
+ADD COLUMN     "poDate" TIMESTAMP(3),
+ADD COLUMN     "taxAmount" DOUBLE PRECISION,
+ADD COLUMN     "totalAmount" DOUBLE PRECISION,
+ALTER COLUMN "status" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Vendor" ADD COLUMN     "address" TEXT,
+ADD COLUMN     "bankAccount" TEXT,
+ADD COLUMN     "bankName" TEXT,
+ADD COLUMN     "city" TEXT,
+ADD COLUMN     "contactPerson" TEXT,
+ADD COLUMN     "contactPhone" TEXT,
+ADD COLUMN     "country" TEXT,
+ADD COLUMN     "createdDate" TIMESTAMP(3),
+ADD COLUMN     "currency" TEXT,
+ADD COLUMN     "ifscCode" TEXT,
+ADD COLUMN     "notes" TEXT,
+ADD COLUMN     "paymentTerms" TEXT,
+ADD COLUMN     "phone" TEXT,
+ADD COLUMN     "postalCode" TEXT,
+ADD COLUMN     "state" TEXT,
+ADD COLUMN     "status" TEXT,
+ADD COLUMN     "updatedDate" TIMESTAMP(3),
+ADD COLUMN     "vendorCode" TEXT;
