@@ -4,8 +4,9 @@
 pull.py — Pull data from SAP (Full or Delta) and save to PostgreSQL
 
 USAGE:
-    python pull.py           <- smart pull (delta if possible, full if first time)
-    python pull.py --full    <- force full pull (ignore last pull time)
+    python pull.py                                 <- smart pull (delta if possible, full if first time)
+    python pull.py --full                          <- force full pull (ignore last pull time)
+    python pull.py --since "2026-03-01T00:00:00"   <- pull only records changed after this exact date/time
 
 EDIT ONLY the section below to control what gets pulled.
 """
@@ -50,8 +51,22 @@ SAP_PREFIX  = "/sap/opu/odata/sap"
 DB = dict(host=os.getenv("DB_HOST"), port=int(os.getenv("DB_PORT","5432")),
           dbname=os.getenv("DB_NAME"), user=os.getenv("DB_USER"), password=os.getenv("DB_PASSWORD"))
 
-# Force full pull if --full flag is passed
+# Parse command line flags
 FORCE_FULL = "--full" in sys.argv
+CUSTOM_SINCE = None
+
+# Check for --since "YYYY-MM-DDTHH:MM:SS"
+if "--since" in sys.argv:
+    try:
+        idx = sys.argv.index("--since")
+        since_str = sys.argv[idx + 1]
+        CUSTOM_SINCE = datetime.fromisoformat(since_str)
+        # Note: timezone-naive datetime is fine for OData formatting
+    except (ValueError, IndexError):
+        print("\n[ERROR] Invalid date format for --since.")
+        print("        Use: --since \"YYYY-MM-DDTHH:MM:SS\"")
+        print("        Example: --since \"2026-03-01T08:00:00\"")
+        sys.exit(1)
 
 
 def get_db():
@@ -189,7 +204,13 @@ def save(service_path, entity, records, pull_mode):
 
 # ── MAIN ─────────────────────────────────────────────────────
 if __name__ == "__main__":
-    mode_label = "FORCE FULL" if FORCE_FULL else "SMART (Delta if possible)"
+    if CUSTOM_SINCE:
+        mode_label = f"CUSTOM DATE (Since {CUSTOM_SINCE.strftime('%Y-%m-%d %H:%M:%S')})"
+    elif FORCE_FULL:
+        mode_label = "FORCE FULL"
+    else:
+        mode_label = "SMART (Delta if possible)"
+        
     print("=" * 55)
     print(f"  SAP PULL — Mode: {mode_label}")
     print(f"  Jobs: {len(PULL_JOBS)} service(s), up to {RECORDS_PER_JOB} records each")
@@ -199,12 +220,19 @@ if __name__ == "__main__":
         service = f"{SAP_PREFIX}/{service_name}"
         print(f"\n  [JOB] {entity}  ({service_name})")
 
-        # Decide: full or delta?
-        last_pull = None if FORCE_FULL else get_last_pull_time(entity)
-        pull_mode = "full" if last_pull is None else "delta"
+        # Determine the start time for this pull
+        if CUSTOM_SINCE:
+            last_pull = CUSTOM_SINCE
+            pull_mode = "delta"
+        elif FORCE_FULL:
+            last_pull = None
+            pull_mode = "full"
+        else:
+            last_pull = get_last_pull_time(entity)
+            pull_mode = "full" if last_pull is None else "delta"
 
         if last_pull:
-            print(f"  Last pull: {last_pull.strftime('%Y-%m-%d %H:%M:%S UTC')}")
+            print(f"  Pulling records changed after: {last_pull.strftime('%Y-%m-%d %H:%M:%S')}")
 
         records = pull(service, entity, delta_field=delta_field, since=last_pull)
 
