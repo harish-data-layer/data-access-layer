@@ -84,8 +84,10 @@ def run_cli():
             print("[ERROR] Invalid date format. Type it like: YYYY-MM-DDTHH:MM:SS")
             sys.exit(1)
 
-    # Open a database connection and go through every job!
-    with next(get_db()) as db:
+    # Step C: Open a database connection and go through every job!
+    from hybrid_orm.database import SessionLocal
+    db = SessionLocal()
+    try:
         for service_name, entity, delta_field in PULL_JOBS:
             run_sync_worker(
                 db=db,
@@ -96,6 +98,8 @@ def run_cli():
                 custom_since=custom_since,
                 max_records=MAX_RECORDS
             )
+    finally:
+        db.close()
 
 # This magically runs the CLI function IF we ran this file directly from terminal
 if __name__ == "__main__":
