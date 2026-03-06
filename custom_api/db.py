@@ -104,30 +104,16 @@ def save_pulled_data(service_name, entity_name, records):
                 (service_name, entity_name)
             )
 
-            rows = []
-            for rec in records:
-                # Guess unique key
-                mata_id = None
-                for key in ["Product", "Material", "BusinessPartner", "SalesOrder",
-                           "PurchaseOrder", "Supplier", "Customer", "Plant"]:
-                    if key in rec and rec[key]:
-                        mata_id = str(rec[key]).strip()
-                        break
-                if not mata_id:
-                    for k, v in rec.items():
-                        if v is not None and str(v).strip():
-                            mata_id = str(v).strip()
-                            break
 
-                rows.append((service_name, entity_name, mata_id,
-                           json.dumps(rec, ensure_ascii=False)))
-
-            sql = f"""INSERT INTO {schema}.sap_data
-                      (service_name, entity_name, mata_id, payload)
+            # Instead of a row per record, we will save the entire list of records as one JSON array.
+            # We'll use 'ALL_RECORDS' as the mata_id to signify it contains everything.
+            sql = f"""INSERT INTO {schema}.sap_data 
+                      (service_name, entity_name, mata_id, payload) 
                       VALUES (%s, %s, %s, %s::jsonb);"""
-
-            psycopg2.extras.execute_batch(cur, sql, rows)
+                      
+            cur.execute(sql, (service_name, entity_name, "ALL_RECORDS", json.dumps(records, ensure_ascii=False)))
             conn.commit()
-            return len(rows)
+            return len(records)
+
     finally:
         conn.close()
