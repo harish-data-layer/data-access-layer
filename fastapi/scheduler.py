@@ -28,6 +28,12 @@ SCHEDULE_MODE    = "daily"
 PULL_AT_TIME     = "09:00"      # used when mode = "daily"   (24h format)
 PULL_EVERY_HOURS = 6            # used when mode = "interval"
 
+# On startup: should we do a FULL pull or DELTA?
+# True  = force full pull on first run (gets everything)
+# False = smart pull (delta automatically if previous data exists)
+FULL_PULL_ON_STARTUP = False
+
+
 # ══════════════════════════════════════════════════════════
 # DO NOT EDIT BELOW THIS LINE
 # ══════════════════════════════════════════════════════════
@@ -83,40 +89,36 @@ Please check the server and restart the scheduler if needed.
         print(f"  [EMAIL] Failed to send alert email: {e}")
 
 
-def run_pull():
-    """Run pull.py and send an email alert if it fails."""
+def run_pull(force_full=False):
+    """
+    Run pull.py.
+    - force_full=True  → full pull (all records, ignores last pull time)
+    - force_full=False → delta pull (only changed records since last run)
+    """
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    mode = "FULL PULL" if force_full else "DELTA PULL"
     print(f"\n{'='*55}")
-    print(f"  [SCHEDULER] Pull started at {now}")
+    print(f"  [SCHEDULER] {mode} started at {now}")
     print(f"{'='*55}")
 
-    try:
-        result = subprocess.run(
-            [PYTHON, PULL_SCRIPT],
-            capture_output=True,
-            text=True,
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"}
-        )
+    cmd = [PYTHON, PULL_SCRIPT]
+    if force_full:
+        cmd.append("--full")   # tells pull.py to ignore last pull timestamp
 
-        # Always print the output
-        if result.stdout: print(result.stdout)
-        if result.stderr: print(result.stderr)
+    result = subprocess.run(
+        cmd,
+        capture_output=False,
+        text=True,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"}
+    )
 
-        if result.returncode == 0:
-            print(f"  [SCHEDULER] Pull completed successfully.")
-        else:
-            # Pull script exited with an error — send failure email
-            error_msg = result.stderr or result.stdout or "Unknown error (no output)"
-            print(f"  [SCHEDULER] Pull failed! Sending failure email...")
-            send_failure_email(
-                f"Exit code: {result.returncode}\n\nOutput:\n{error_msg}"
-            )
+    if result.returncode == 0:
+        print(f"\n  [SCHEDULER] {mode} completed successfully.")
+    else:
+        error_msg = f"Exit code: {result.returncode}"
+        print(f"\n  [SCHEDULER] {mode} FAILED! Sending alert email...")
+        send_failure_email(f"{mode} failed.\n\n{error_msg}")
 
-    except Exception:
-        # Something went wrong running the script itself — send email
-        error_details = traceback.format_exc()
-        print(f"  [SCHEDULER] Unexpected error:\n{error_details}")
-        send_failure_email(error_details)
 
 
 # Set up the schedule
@@ -139,7 +141,7 @@ if __name__ == "__main__":
 
     # Pull immediately on startup
     print("\n  Running initial pull on startup...")
-    run_pull()
+    run_pull(force_full=FULL_PULL_ON_STARTUP)
 
     # Then run on the configured schedule forever
     while True:
