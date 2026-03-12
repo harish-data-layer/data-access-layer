@@ -1,1 +1,0 @@
-﻿{'type': 'SAPGUI', 'uuid': 'e8d32d85-b7b6-4151-8f1f-aee90501251f', 'name': 'S4hana', 'systemid': 'E81', 'mode': '1', 'server': 's1.mncinfosys.com:3240', 'sncop': '-1', 'dcpg': '2'}

@@ -1,0 +1,27 @@
+
+--- Sheet: MACHINE SHOP  ---
+                                                  0                    1       2        3            4              5                  6          7        8              9       10          11         12              13          14        15         16            17           18               19               20              21                22      23            24
+0  MACHINE SHOP ENTRY DETAILS 01.10.2025 - TILL DATE                  NaN     NaN      NaN          NaN            NaN                NaN        NaN      NaN            NaN     NaN         NaN        NaN             NaN         NaN       NaN        NaN           NaN          NaN              NaN              NaN             NaN               NaN     NaN           NaN
+1                                                NaN                  NaN     NaN      NaN          NaN            NaN                NaN        NaN      NaN            NaN     NaN         NaN        NaN             NaN         NaN       NaN        NaN           NaN          NaN              NaN              NaN             NaN               NaN     NaN           NaN
+2                                            Wip Num             Wip Date  WO Num    Shift  Machine Num  Operator Name  Training Emp Name  From Time  To Time  Customer Name  WO Qty   Item Code  Item Name  Production Qty  Cycle Time  M/C EFF%  Batch Qty  Complete Qty  Pending Qty  Machine Drw Num  Casting Drw Num  Casting Weight  Breakdown Reason  B-Time     Operation
+3                                              30293  2025-10-02 00:00:00   10670  Day M/c        VTL01  LOGESH GURU,M                NaN        830     2030           BTPL      33  6650013031    Housing               8          45        50          0             0            0       950013030G       950013030G           90.73        Inspection      20  Drilling - 1
+4                                                NaN  2025-10-02 00:00:00     NaN      NaN        VTL01  LOGESH GURU,M                NaN        830     2030            NaN       0         NaN        NaN               0         NaN         0          0             0            0              NaN              NaN             NaN             Lunch      30           NaN
+5                                                NaN  2025-10-02 00:00:00     NaN      NaN        VTL01  LOGESH GURU,M                NaN        830     2030            NaN       0         NaN        NaN               0         NaN         0          0             0            0              NaN              NaN             NaN           No Load       0           NaN
+
+--- Sheet: DETAILED ORDER BOOK ---
+                    0                    1                    2              3                              4                5          6                      7            8              9            10                     11                         12                         13          14          15                 16            17
+0  DETAILED ORDER BOOK                  NaN                  NaN            NaN                            NaN              NaN        NaN                    NaN          NaN            NaN          NaN                    NaN                        NaN                        NaN         NaN         NaN                NaN           NaN
+1       Sales Order No           Order Date        Delivery Date  Customer Code                  Customer Name  Customer Ref No  Item Code       Item Description  Ordered Qty  Delivered Qty  Pending Qty  Weight Per Piece (Kg)  Total Ordered Weight (Kg)  Total Pending Weight (Kg)  Unit Price  Line Total  Order Total Value  Order Status
+2                  131  2024-06-20 00:00:00  2024-09-20 00:00:00        CUS0012  LAKSHMI MACHINE WORKS LIMITED          2250234   LMWL0005  Support Flyer Through         2500           2313          187                  18.84                      47100                    3523.08     1594.05     3985125         5812464.06          Open
+3                  131  2024-06-20 00:00:00  2024-09-20 00:00:00        CUS0012  LAKSHMI MACHINE WORKS LIMITED          2250234   LMWL0006           Scan Housing          100             51           49                  18.53                       1853                     907.97     1567.82      156782         5812464.06          Open
+4                  151  2024-06-22 00:00:00  2024-09-30 00:00:00        CUS0023   BULL MACHINE PVT LTD-PLANT-2       5500001730   BMPL0002           STUB_AXLE_RH         3750           3636          114                   20.4                      76500                     2325.6      2477.8     9291750        36033071.09          Open
+5                  151  2024-06-22 00:00:00  2024-09-30 00:00:00        CUS0023   BULL MACHINE PVT LTD-PLANT-2       5500001730   BMPL0001      105CYL_HOLD_PLATE         8000           7014          986                  12.65                     101200                    12472.9     1441.51    11532080        36033071.09          Open
+
+--- Sheet: Machine Operations Master ---
+                           0             1
+0  Machine Operations Master           NaN
+1                        NaN           NaN
+2               Machine Code     Operation
+3                        HMC  Drilling - 2
+4                        HMC  Drilling - 1
+5                        HMC  Drilling - 3
